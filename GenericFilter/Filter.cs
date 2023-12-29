@@ -32,15 +32,10 @@ namespace GenericFilter
                         predicate = Expression.Lambda<Func<T, bool>>(containsMethodExp, parameter);
                     }
 
-                    else if (propertyInfo.GetCustomAttribute<GreaterThanAttribute>() != null)
+                    else if (propertyInfo.GetValue(filterCreteria) is IMinMaxFilter minMaxFilter)
                     {
-                        BinaryExpression graterBinaryExpression = Expression.GreaterThanOrEqual(propertyExpression, constValue);
-                        predicate = Expression.Lambda<Func<T, bool>>(graterBinaryExpression, parameter);
-                    }
-                    else if (propertyInfo.GetCustomAttribute<LessThanAttribute>() != null)
-                    {
-                        BinaryExpression LessThanBinaryExpression = Expression.LessThanOrEqual(propertyExpression, constValue);
-                        predicate = Expression.Lambda<Func<T, bool>>(LessThanBinaryExpression, parameter);
+                        if (minMaxFilter != null)
+                            predicate = minMaxFilter.BuildMinMax<T>(propertyExpression);
                     }
                     else if (propertyInfo.GetCustomAttribute<EqualAttribute>() != null)
                     {
