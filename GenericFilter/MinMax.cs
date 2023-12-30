@@ -28,13 +28,13 @@ namespace GenericFilter
                 min = Expression.LessThanOrEqual(memberExpression, constValue);
             }
 
+            if (min == default && max == default)
+                return default;
+
             if (min == default)
                 return Expression.Lambda<Func<TEntity, bool>>(max, parameter);
             if (max == default)
                 return Expression.Lambda<Func<TEntity, bool>>(min, parameter);
-
-            if (min == default && max == default)
-                return default;
 
             var combined = Expression.AndAlso(max, min);
             var predicate = Expression.Lambda<Func<TEntity, bool>>(combined, parameter);

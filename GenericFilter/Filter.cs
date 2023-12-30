@@ -6,7 +6,7 @@ namespace GenericFilter
 {
     public static class Filter
     {
-        public static async Task<Expression<Func<T, bool>>?> DynamicFilter<T>(this IFilter filterCreteria)
+        public static Expression<Func<T, bool>>? DynamicFilter<T>(this IFilter filterCreteria)
         {
             var entityPropertyInfo = typeof(T).GetProperties().ToList();
             Expression<Func<T, bool>>? criteria = default;
@@ -24,25 +24,21 @@ namespace GenericFilter
                 {
                     var constValue = Expression.Constant(propertyInfo.GetValue(filterCreteria), propertyInfo.PropertyType);
                     MemberExpression propertyExpression = Expression.Property(parameter, property);
+                    var stringComparison = propertyInfo.GetCustomAttribute<StringComparisonAttribute>();
+                    var equalComparison = propertyInfo.GetCustomAttribute<EqualAttribute>();
 
-                    if (propertyInfo.GetCustomAttribute<StringComparisonAttribute>() != null)
-                    {
-                        MethodInfo? method = typeof(string).GetMethod("Contains", new[] { typeof(string) });
-                        var containsMethodExp = Expression.Call(propertyExpression, method, new Expression[] { constValue });
-                        predicate = Expression.Lambda<Func<T, bool>>(containsMethodExp, parameter);
-                    }
+                    if (stringComparison != null)
+                        predicate = stringComparison.BuildExpression<T>(propertyExpression, constValue);
 
                     else if (propertyInfo.GetValue(filterCreteria) is IMinMaxFilter minMaxFilter)
                     {
                         if (minMaxFilter != null)
                             predicate = minMaxFilter.BuildMinMax<T>(propertyExpression);
                     }
-                    else if (propertyInfo.GetCustomAttribute<EqualAttribute>() != null)
+
+                    else if (equalComparison != null)
                     {
-                        predicate = Expression.Lambda<Func<T, bool>>(
-                        Expression.Equal(Expression.PropertyOrField(parameter, propertyInfo.Name),
-                        Expression.Constant(propertyInfo.GetValue(filterCreteria), property.PropertyType)),
-                        parameter);
+                        equalComparison.BuildExpression<T>(propertyInfo, property, filterCreteria);
                     }
 
                     if (predicate == default)

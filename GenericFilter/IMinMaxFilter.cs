@@ -5,6 +5,6 @@ namespace GenericFilter
 {
     public interface IMinMaxFilter
     {
-        public Expression<Func<T, bool>?> BuildMinMax<T>(MemberExpression memberExpression);
+        public Expression<Func<T, bool>>? BuildMinMax<T>(MemberExpression memberExpression);
     }
 }
