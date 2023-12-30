@@ -38,7 +38,7 @@ namespace GenericFilter
 
                     else if (equalComparison != null)
                     {
-                        equalComparison.BuildExpression<T>(propertyInfo, property, filterCreteria);
+                        predicate = equalComparison.BuildExpression<T>(propertyInfo, property, filterCreteria);
                     }
 
                     if (predicate == default)

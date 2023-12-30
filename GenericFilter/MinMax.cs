@@ -19,13 +19,13 @@ namespace GenericFilter
             if (Max.HasValue)
             {
                 var constValue = Expression.Constant(Max.Value, Max.Value.GetType());
-                max = Expression.GreaterThanOrEqual(memberExpression, constValue);
+                max = Expression.LessThanOrEqual(memberExpression, constValue);
             }
 
             if (Min.HasValue)
             {
                 var constValue = Expression.Constant(Min.Value, Min.GetType());
-                min = Expression.LessThanOrEqual(memberExpression, constValue);
+                min = Expression.GreaterThanOrEqual(memberExpression, constValue);
             }
 
             if (min == default && max == default)
